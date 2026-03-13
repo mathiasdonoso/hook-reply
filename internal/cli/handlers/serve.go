@@ -12,16 +12,23 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/mathiasdonoso/hook-replay/internal/database"
 )
 
 func ServeHandler(port uint, forward string) error {
+	_, err := database.NewConnection()
+	if err != nil {
+		return err
+	}
+
 	if !strings.Contains(forward, "://") {
 		forward = "http://" + forward
 	}
 
 	target, err := url.Parse(forward)
 	if err != nil {
-		return fmt.Errorf("invalid forward URL: %w", err)
+		return err
 	}
 
 	proxy := httputil.NewSingleHostReverseProxy(target)
@@ -45,7 +52,7 @@ func ServeHandler(port uint, forward string) error {
 
 	log.Println(fmt.Sprintf("Server listening on port %d", port))
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		return fmt.Errorf("server error: %w", err)
+		return err
 	}
 
 	return <-shutdownErr

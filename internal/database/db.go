@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"os"
+	"path/filepath"
 
 	_ "modernc.org/sqlite"
 )
@@ -12,19 +13,36 @@ type Database struct {
 }
 
 func NewConnection() (*Database, error) {
-	path := "./hr.db"
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return nil, err
+	}
+
+	configDir := filepath.Join(homeDir, ".hook-replay")
+	configPath := filepath.Join(configDir, "events.db")
 	isNew := false
 
-	if _, err := os.Stat(path); err != nil {
-		isNew = true
-		file, err := os.Create(path)
-		defer file.Close()
-		if err != nil {
+	if _, err := os.Stat(configPath); err != nil {
+		if os.IsNotExist(err) {
+			isNew = true
+
+			err = os.MkdirAll(configDir, 0755)
+			if err != nil {
+				return nil, err
+			}
+
+			file, err := os.Create(configPath)
+			if err != nil {
+				return nil, err
+			}
+
+			defer file.Close()
+		} else {
 			return nil, err
 		}
 	}
 
-	db, err := sql.Open("sqlite", path)
+	db, err := sql.Open("sqlite", configPath)
 	if err != nil {
 		return nil, err
 	}

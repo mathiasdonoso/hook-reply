@@ -12,47 +12,47 @@ type Database struct {
 	db *sql.DB
 }
 
-func NewConnection() (*Database, error) {
+type ConnectionConfig struct {
+	DatabaseName string
+	Path         string
+}
+
+func NewConnectionConfig() (*ConnectionConfig, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return nil, err
 	}
 
 	configDir := filepath.Join(homeDir, ".hook-replay")
-	configPath := filepath.Join(configDir, "events.db")
-	isNew := false
 
-	if _, err := os.Stat(configPath); err != nil {
-		if os.IsNotExist(err) {
-			isNew = true
+	return &ConnectionConfig{
+		DatabaseName: "events.db",
+		Path:         configDir,
+	}, nil
+}
 
-			err = os.MkdirAll(configDir, 0755)
-			if err != nil {
-				return nil, err
-			}
+func NewConnection(config *ConnectionConfig) (*Database, error) {
+	databasePath := filepath.Join(config.Path, config.DatabaseName)
 
-			file, err := os.Create(configPath)
-			if err != nil {
-				return nil, err
-			}
-
-			defer file.Close()
-		} else {
-			return nil, err
-		}
-	}
-
-	db, err := sql.Open("sqlite", configPath)
+	err := os.MkdirAll(config.Path, 0700)
 	if err != nil {
 		return nil, err
 	}
 
+	db, err := sql.Open("sqlite", databasePath)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = db.Ping(); err != nil {
+		db.Close()
+		return nil, err
+	}
+
 	d := &Database{db}
-	if isNew {
-		err := d.BuildSchema()
-		if err != nil {
-			return nil, err
-		}
+	if err = d.BuildSchema(); err != nil {
+		db.Close()
+		return nil, err
 	}
 
 	return d, nil

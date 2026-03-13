@@ -17,7 +17,12 @@ import (
 )
 
 func ServeHandler(port uint, forward string) error {
-	_, err := database.NewConnection()
+	connConfig, err := database.NewConnectionConfig()
+	if err != nil {
+		return err
+	}
+
+	_, err = database.NewConnection(connConfig)
 	if err != nil {
 		return err
 	}

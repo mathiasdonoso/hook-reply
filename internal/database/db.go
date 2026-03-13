@@ -8,37 +8,17 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-type Database struct {
+type database struct {
 	db *sql.DB
 }
 
-type ConnectionConfig struct {
-	DatabaseName string
-	Path         string
-}
-
-func NewConnectionConfig() (*ConnectionConfig, error) {
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return nil, err
-	}
-
-	configDir := filepath.Join(homeDir, ".hook-replay")
-
-	return &ConnectionConfig{
-		DatabaseName: "events.db",
-		Path:         configDir,
-	}, nil
-}
-
-func NewConnection(config *ConnectionConfig) (*Database, error) {
-	databasePath := filepath.Join(config.Path, config.DatabaseName)
-
+func NewConnection(config *connectionConfig) (*database, error) {
 	err := os.MkdirAll(config.Path, 0700)
 	if err != nil {
 		return nil, err
 	}
 
+	databasePath := filepath.Join(config.Path, config.DatabaseName)
 	db, err := sql.Open("sqlite", databasePath)
 	if err != nil {
 		return nil, err
@@ -49,7 +29,7 @@ func NewConnection(config *ConnectionConfig) (*Database, error) {
 		return nil, err
 	}
 
-	d := &Database{db}
+	d := &database{db}
 	if err = d.BuildSchema(); err != nil {
 		db.Close()
 		return nil, err
@@ -58,15 +38,15 @@ func NewConnection(config *ConnectionConfig) (*Database, error) {
 	return d, nil
 }
 
-func (d *Database) Close() error {
+func (d *database) Close() error {
 	return d.db.Close()
 }
 
-func (d *Database) GetDB() *sql.DB {
+func (d *database) GetDB() *sql.DB {
 	return d.db
 }
 
-func (d *Database) BuildSchema() error {
+func (d *database) BuildSchema() error {
 	_, err := d.db.Exec(`
 CREATE TABLE IF NOT EXISTS events (
 	id STRING PRIMARY KEY,

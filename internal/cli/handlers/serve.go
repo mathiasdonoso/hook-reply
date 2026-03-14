@@ -13,20 +13,12 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/mathiasdonoso/hook-replay/internal/application"
 	"github.com/mathiasdonoso/hook-replay/internal/database"
+	"github.com/mathiasdonoso/hook-replay/internal/infrastructure"
 )
 
 func ServeHandler(port uint, forward string) error {
-	connConfig, err := database.NewConfig()
-	if err != nil {
-		return err
-	}
-
-	_, err = database.NewConnection(connConfig)
-	if err != nil {
-		return err
-	}
-
 	if !strings.Contains(forward, "://") {
 		forward = "http://" + forward
 	}
@@ -36,10 +28,40 @@ func ServeHandler(port uint, forward string) error {
 		return err
 	}
 
+	connConfig, err := database.NewConfig()
+	if err != nil {
+		return err
+	}
+
+	conn, err := database.NewConnection(connConfig)
+	if err != nil {
+		return err
+	}
+
+	defer conn.Close()
+
+	eventRepo := infrastructure.NewEventRepository(conn.DB())
+	service := application.NewEventService(eventRepo)
+
 	proxy := httputil.NewSingleHostReverseProxy(target)
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("incoming request %s %s from %s",
+			r.Method,
+			r.URL.Path,
+			r.RemoteAddr,
+		)
+
+		err = service.Capture(r)
+		if err != nil {
+			log.Fatal(fmt.Printf("error capturing the request: %s", err.Error()))
+		}
+
+		proxy.ServeHTTP(w, r)
+	})
+
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
-		Handler: proxy,
+		Handler: handler,
 	}
 
 	shutdownErr := make(chan error, 1)
@@ -52,10 +74,12 @@ func ServeHandler(port uint, forward string) error {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
+		fmt.Printf("some request")
+
 		shutdownErr <- server.Shutdown(ctx)
 	}()
 
-	log.Println(fmt.Sprintf("Server listening on port %d", port))
+	log.Printf("Server listening on port %d", port)
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		return err
 	}

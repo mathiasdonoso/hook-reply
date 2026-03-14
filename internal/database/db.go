@@ -24,6 +24,9 @@ func NewConnection(config *connectionConfig) (*database, error) {
 		return nil, err
 	}
 
+	db.SetMaxOpenConns(1)
+	db.SetMaxIdleConns(1)
+
 	if err = db.Ping(); err != nil {
 		db.Close()
 		return nil, err
@@ -42,24 +45,22 @@ func (d *database) Close() error {
 	return d.db.Close()
 }
 
-func (d *database) GetDB() *sql.DB {
+func (d *database) DB() *sql.DB {
 	return d.db
 }
 
 func (d *database) BuildSchema() error {
 	_, err := d.db.Exec(`
 CREATE TABLE IF NOT EXISTS events (
-	id STRING PRIMARY KEY,
+	id TEXT PRIMARY KEY,
 	source TEXT NOT NULL,
 	path TEXT NOT NULL,
 	status TEXT NOT NULL,
-	date TIMESTAMP NOT NULL
+	headers TEXT NOT NULL,
+	body BLOB,
+	received_at TIMESTAMP NOT NULL
 	);
 	`)
 
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }

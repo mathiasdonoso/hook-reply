@@ -55,8 +55,8 @@ CREATE TABLE IF NOT EXISTS events (
 	id TEXT PRIMARY KEY,
 	source TEXT NOT NULL,
 	path TEXT NOT NULL,
-	status TEXT NOT NULL,
-	headers TEXT NOT NULL,
+	method TEXT NOT NULL,
+	headers BLOB NOT NULL,
 	body BLOB,
 	received_at TIMESTAMP NOT NULL
 	);

@@ -1,6 +1,7 @@
 package application
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -23,11 +24,16 @@ func (s *eventService) Capture(r *http.Request) error {
 		return err
 	}
 
+	headers, err := json.Marshal(r.Header)
+	if err != nil {
+		return err
+	}
+
 	event := domain.Event{
 		Source:  r.RemoteAddr,
 		Path:    r.RequestURI,
-		Status:  "200",
-		Headers: "",
+		Method:  r.Method,
+		Headers: headers,
 		Body:    body,
 	}
 

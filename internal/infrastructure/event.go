@@ -17,7 +17,7 @@ func NewEventRepository(db *sql.DB) *eventRepository {
 }
 
 func (r *eventRepository) Save(event domain.Event) error {
-	query := `INSERT INTO events(id, source, path, status, headers, body, received_at)
+	query := `INSERT INTO events(id, source, path, method, headers, body, received_at)
 	VALUES ($1, $2, $3, $4, $5, $6, $7)`
 
 	id := uuid.New().String()
@@ -27,7 +27,7 @@ func (r *eventRepository) Save(event domain.Event) error {
 		id,
 		event.Source,
 		event.Path,
-		event.Status,
+		event.Method,
 		event.Headers,
 		event.Body,
 		time.Now(),

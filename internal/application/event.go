@@ -2,7 +2,6 @@ package application
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 
@@ -20,7 +19,6 @@ func NewEventService(repo domain.EventRepository) *eventService {
 func (s *eventService) Capture(r *http.Request) error {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		fmt.Printf("err reading r.Body: %+v\n", err)
 		return err
 	}
 

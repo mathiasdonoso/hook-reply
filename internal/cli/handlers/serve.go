@@ -55,7 +55,7 @@ func ServeHandler(port uint, forward string) error {
 			r.RemoteAddr,
 		)
 
-		err = service.Capture(r)
+		err = service.CaptureRequest(r)
 		if err != nil {
 			log.Fatal(fmt.Printf("error capturing the request: %s", err.Error()))
 		}

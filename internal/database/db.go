@@ -58,6 +58,7 @@ CREATE TABLE IF NOT EXISTS events (
 	method TEXT NOT NULL,
 	headers BLOB NOT NULL,
 	body BLOB,
+	target TEXT NOT NULL,
 	received_at TIMESTAMP NOT NULL
 	);
 	`)

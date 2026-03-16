@@ -16,7 +16,7 @@ const DefaultPort = 3000
 
 var CommandsRegistry = map[string]*CommandNode{
 	"serve": {
-		Name:        "serve",
+		Name: "serve",
 		Description: "Creates a proxy server that intercepts and forwards webhook requests.",
 		Setup: func(fs *flag.FlagSet) func() error {
 			port := fs.Uint("port", DefaultPort, "Port where the webhook server listens for incoming requests.")
@@ -33,6 +33,20 @@ var CommandsRegistry = map[string]*CommandNode{
 		Setup: func(fs *flag.FlagSet) func() error {
 			return func() error {
 				return handlers.LogHandler()
+			}
+		},
+	},
+	"replay": {
+		Name: "replay",
+		Description: "Replay the selected request to the configured forward target.",
+		Setup: func(fs *flag.FlagSet) func() error {
+			last := fs.Bool("last", false, "Replay the most recent event.")
+			times := fs.Uint("times", 1, "Number of times to replay the event (used with --delay).")
+			delay := fs.Uint("delay", 0, "Delay between each replay (in milliseconds)")
+			target := fs.String("target", "", "Override the forward target for the replayed request.")
+
+			return func() error {
+				return handlers.ReplayHandler(fs.Arg(0), *last, *times, *delay, *target)
 			}
 		},
 	},

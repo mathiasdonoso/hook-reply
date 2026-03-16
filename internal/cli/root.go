@@ -13,7 +13,8 @@ func NewHR(args []string) *HR {
 
 func (h *HR) Execute(args []string) error {
 	if len(args) == 0 {
-		return fmt.Errorf("no command provided")
+		showHelp()
+		return nil
 	}
 
 	command := args[0]
@@ -27,4 +28,19 @@ func (h *HR) Execute(args []string) error {
 	fs.Parse(args[1:])
 
 	return handler()
+}
+
+func showHelp() {
+	commands := CommandsRegistry
+
+	fmt.Printf("A CLI proxy server that intercepts, captures, and replays webhook requests.\n\n")
+	fmt.Printf("Usage:\n\n")
+	fmt.Printf("\thr <command> [arguments]\n\n")
+	fmt.Printf("The commands are:\n\n")
+
+	for name, command := range commands {
+		fmt.Printf("\t%s\t%s\n", name, command.Description)
+	}
+
+	fmt.Println()
 }

@@ -20,7 +20,7 @@ import (
 
 func ServeHandler(port uint, forward string) error {
 	if forward == "" {
-		return fmt.Errorf("invalid URL provided in the --forward flag")
+		return fmt.Errorf("--forward flag needed")
 	}
 
 	if !strings.Contains(forward, "://") {

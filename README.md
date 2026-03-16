@@ -89,16 +89,6 @@ hr replay --last --target localhost:9000
 hr replay abc12345 --times 5 --delay 1000
 ```
 
----
-
-### `hr help`
-
-Displays usage information for all commands.
-
-```sh
-hr help
-```
-
 ## Data Storage
 
 Captured events are stored in a local SQLite database at `~/.hook-replay/events.db`. The database and schema are created automatically on first run.

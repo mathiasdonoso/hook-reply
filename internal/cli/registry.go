@@ -42,7 +42,7 @@ var CommandsRegistry = map[string]*CommandNode{
 		Setup: func(fs *flag.FlagSet) func() error {
 			last := fs.Bool("last", false, "Replay the most recent event.")
 			times := fs.Uint("times", 1, "Number of times to replay the event (used with --delay).")
-			delay := fs.Uint("delay", 0, "Delay between each replay")
+			delay := fs.Uint("delay", 0, "Delay between each replay (in milliseconds)")
 			target := fs.String("target", "", "Override the forward target for the replayed request.")
 
 			return func() error {

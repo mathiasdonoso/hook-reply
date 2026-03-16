@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/mathiasdonoso/hook-replay/internal/application"
 	"github.com/mathiasdonoso/hook-replay/internal/database"
@@ -55,10 +56,20 @@ func ReplayHandler(id string, last bool, times uint, delay uint, target string) 
 		e.Target = target.String()
 	}
 
-	return makeEventHttpCall(e)
+
+	// flags: times & delay
+	i := 0
+	for i < int(times) {
+		if err := makeEventHttpCall(e, delay); err != nil {
+			return err
+		}
+		i = i + 1
+	}
+
+	return nil
 }
 
-func makeEventHttpCall(e domain.Event) error {
+func makeEventHttpCall(e domain.Event, delay uint) error {
 	req, err := http.NewRequest(e.Method, e.Target, bytes.NewBuffer(e.Body))
 	if err != nil {
 		return err
@@ -68,6 +79,8 @@ func makeEventHttpCall(e domain.Event) error {
 	err = json.Unmarshal(e.Headers, &h)
 
 	req.Header = h
+
+	time.Sleep(time.Duration(delay) * time.Millisecond)
 
 	_, err = http.DefaultClient.Do(req)
 	if err != nil {

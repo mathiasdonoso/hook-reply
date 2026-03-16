@@ -2,7 +2,6 @@ package infrastructure
 
 import (
 	"database/sql"
-	// "encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -58,10 +57,6 @@ func (r *eventRepository) List() ([]domain.Event, error) {
 		); err != nil {
 			return []domain.Event{}, err
 		}
-
-		// var body any
-
-		// e.Body = json.Unmarshal(e.Body, body)
 
 		events = append(events, e)
 	}

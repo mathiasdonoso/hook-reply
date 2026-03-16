@@ -14,4 +14,5 @@ type Event struct {
 
 type EventRepository interface {
 	Save(event Event) error
+	List() ([]Event, error)
 }

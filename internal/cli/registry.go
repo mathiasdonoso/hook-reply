@@ -25,4 +25,13 @@ var CommandsRegistry = map[string]*CommandNode{
 			}
 		},
 	},
+	"log": {
+		Name: "log",
+		Description: "Get the last 20 requests received.",
+		Setup: func(fs *flag.FlagSet) func() error {
+			return func() error {
+				return handlers.LogHandler()
+			}
+		},
+	},
 }

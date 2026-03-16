@@ -17,13 +17,12 @@ func NewEventRepository(db *sql.DB) *eventRepository {
 }
 
 func (r *eventRepository) Save(event domain.Event) error {
-	query := `INSERT INTO events(id, source, path, method, headers, body, received_at)
+	q := `INSERT INTO events(id, source, path, method, headers, body, received_at)
 	VALUES ($1, $2, $3, $4, $5, $6, $7)`
 
 	id := uuid.New().String()
-
 	_, err := r.db.Exec(
-		query,
+		q,
 		id,
 		event.Source,
 		event.Path,
@@ -34,4 +33,10 @@ func (r *eventRepository) Save(event domain.Event) error {
 	)
 
 	return err
+}
+
+func (r *eventRepository) List() ([]domain.Event, error) {
+	_ = `SELECT TOP(20) FROM events`
+
+	return []domain.Event{}, nil
 }

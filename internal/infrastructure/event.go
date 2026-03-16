@@ -2,6 +2,7 @@ package infrastructure
 
 import (
 	"database/sql"
+	// "encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -36,7 +37,34 @@ func (r *eventRepository) Save(event domain.Event) error {
 }
 
 func (r *eventRepository) List() ([]domain.Event, error) {
-	_ = `SELECT TOP(20) FROM events`
+	q := `SELECT id, source, path, method, headers, body, received_at FROM events ORDER BY received_at DESC LIMIT 20`
+	rows, err := r.db.Query(q)
+	if err != nil {
+		return []domain.Event{}, err
+	}
+	defer rows.Close()
 
-	return []domain.Event{}, nil
+	events := []domain.Event{}
+	for rows.Next() {
+		var e domain.Event
+		if err := rows.Scan(
+			&e.Id,
+			&e.Source,
+			&e.Path,
+			&e.Method,
+			&e.Headers,
+			&e.Body,
+			&e.ReceivedAt,
+		); err != nil {
+			return []domain.Event{}, err
+		}
+
+		// var body any
+
+		// e.Body = json.Unmarshal(e.Body, body)
+
+		events = append(events, e)
+	}
+
+	return events, nil
 }

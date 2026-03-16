@@ -14,7 +14,7 @@ import (
 	"github.com/mathiasdonoso/hook-replay/internal/infrastructure"
 )
 
-// todo: use a different struct to represent handler params & flags?
+// TODO: use a different struct to represent handler params & flags?
 func ReplayHandler(id string, last bool, times uint, delay uint, target string) error {
 	connConfig, err := database.NewConfig()
 	if err != nil {

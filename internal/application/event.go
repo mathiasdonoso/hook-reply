@@ -46,3 +46,7 @@ func (s *eventService) ListEvents() ([]domain.Event, error) {
 func (s *eventService) Find(id string) (domain.Event, error) {
 	return s.repo.Find(id)
 }
+
+func (s *eventService) Last() (domain.Event, error) {
+	return s.repo.Last()
+}

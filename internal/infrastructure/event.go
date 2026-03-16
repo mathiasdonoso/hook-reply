@@ -85,3 +85,23 @@ func (r *eventRepository) Find(id string) (domain.Event, error) {
 
 	return event, nil
 }
+
+func (r *eventRepository) Last() (domain.Event, error) {
+	var event domain.Event
+	q := `SELECT id, source, path, method, headers, body, target, received_at FROM events ORDER BY received_at DESC LIMIT 20;`
+
+	if err := r.db.QueryRow(q).Scan(
+		&event.Id,
+		&event.Source,
+		&event.Path,
+		&event.Method,
+		&event.Headers,
+		&event.Body,
+		&event.Target,
+		&event.ReceivedAt,
+	); err != nil {
+		return event, err
+	}
+
+	return event, nil
+}

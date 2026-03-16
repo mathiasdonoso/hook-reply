@@ -28,7 +28,12 @@ func ReplayHandler(id string, last bool, times uint, delay uint, target string) 
 	eventRepo := infrastructure.NewEventRepository(conn.DB())
 	service := application.NewEventService(eventRepo)
 
-	e, err := service.Find(id)
+	var e domain.Event
+	if last {
+		e, err = service.Last()
+	} else {
+		e, err = service.Find(id)
+	}
 	if err != nil {
 		return err
 	}

@@ -46,7 +46,7 @@ var CommandsRegistry = map[string]*CommandNode{
 			target := fs.String("target", "", "Override the forward target for the replayed request.")
 
 			return func() error {
-				return handlers.ReplayHandler(*last, *times, *delay, *target)
+				return handlers.ReplayHandler(fs.Arg(0), *last, *times, *delay, *target)
 			}
 		},
 	},

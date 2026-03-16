@@ -16,7 +16,7 @@ func NewEventService(repo domain.EventRepository) *eventService {
 	return &eventService{repo: repo}
 }
 
-func (s *eventService) CaptureRequest(r *http.Request) error {
+func (s *eventService) CaptureRequest(r *http.Request, target string) error {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		return err
@@ -33,6 +33,7 @@ func (s *eventService) CaptureRequest(r *http.Request) error {
 		Method:  r.Method,
 		Headers: headers,
 		Body:    body,
+		Target:  target,
 	}
 
 	return s.repo.Save(event)
@@ -40,4 +41,8 @@ func (s *eventService) CaptureRequest(r *http.Request) error {
 
 func (s *eventService) ListEvents() ([]domain.Event, error) {
 	return s.repo.List()
+}
+
+func (s *eventService) Find(id string) (domain.Event, error) {
+	return s.repo.Find(id)
 }

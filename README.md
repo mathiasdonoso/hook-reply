@@ -4,7 +4,7 @@ A CLI tool to intercept, capture, and replay webhook requests. Useful for local 
 
 ## About
 
-This is a personal project built to practice Go. Technical decisions — like using the standard library's `flag` package instead of a CLI framework, or a simple layered architecture — are intentional learning choices, not production recommendations. It is not designed for high-volume or production use.
+This project was built for personal use and to practice Go. Many technical decisions — such as using the standard library’s flag package instead of a CLI framework, or adopting a simple layered architecture — were made intentionally for learning and experimentation rather than as "production recommendations".
 
 ## Installation
 
@@ -69,7 +69,7 @@ Output columns: `Id`, `Source`, `Path`, `Method`, `Body`, `ReceivedAt`
 
 ### `hr replay [id]`
 
-Replays a previously captured request. Accepts the first 8 characters of the event ID as shown in `hr log`.
+Replays a previously captured request. Accepts the first characters of the event ID as shown in `hr log`.
 
 | Flag       | Type   | Default | Description                                      |
 |------------|--------|---------|--------------------------------------------------|

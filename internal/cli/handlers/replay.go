@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"net/url"
+	"strings"
 
 	"github.com/mathiasdonoso/hook-replay/internal/application"
 	"github.com/mathiasdonoso/hook-replay/internal/database"
@@ -28,6 +30,7 @@ func ReplayHandler(id string, last bool, times uint, delay uint, target string) 
 	eventRepo := infrastructure.NewEventRepository(conn.DB())
 	service := application.NewEventService(eventRepo)
 
+	// flag: last
 	var e domain.Event
 	if last {
 		e, err = service.Last()
@@ -36,6 +39,20 @@ func ReplayHandler(id string, last bool, times uint, delay uint, target string) 
 	}
 	if err != nil {
 		return err
+	}
+
+	// flag: target 
+	if target != "" {
+		if !strings.Contains(target, "://") {
+			target = "http://" + target
+		}
+
+		target, err := url.Parse(target)
+		if err != nil {
+			return err
+		}
+
+		e.Target = target.String()
 	}
 
 	return makeEventHttpCall(e)
